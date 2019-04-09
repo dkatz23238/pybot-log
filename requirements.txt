@@ -1,0 +1,5 @@
+flask_sqlalchemy
+psycopg2
+SQLAlchemy
+flask_restful
+Flask-Restless
