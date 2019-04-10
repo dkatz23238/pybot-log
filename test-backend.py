@@ -9,8 +9,10 @@ def new_id():
 def iso_now():
     return datetime.datetime.now().isoformat()
 
-
-http_header = {'Content-type': 'application/json'}
+http_header = {
+    'Content-type': 'application/json',
+    'X-Secret-Key':'ACCESS_TOKEN'
+    }
 
 new_bot = {
     "rpa_id": new_id(),

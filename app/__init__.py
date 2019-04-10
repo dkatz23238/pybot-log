@@ -1,9 +1,17 @@
 # -*- encoding: utf-8 -*-
 
-from flask import Flask
-from flask_restless import APIManager
+from flask import Flask, request
+from flask_restless import APIManager, ProcessingException
 from flask_sqlalchemy import SQLAlchemy
 import time
+import os
+
+ACCESS_TOKEN =  os.environ.get('ACCESS_TOKEN', 'ACCESS_TOKEN')
+
+
+def check_credentials(*args, **kw):
+    if request.headers.get('X-Secret-Key','') != ACCESS_TOKEN:
+        raise ProcessingException(code=401)  # Unauthorized
 
 
 app = Flask(__name__)
@@ -30,5 +38,14 @@ manager = APIManager(app, flask_sqlalchemy_db=db)
 # Create API endpoints, which will be available at /api/<tablename> by
 # default. Allowed HTTP methods can be specified as well.
 
-manager.create_api(RoboticProcessAutomation, methods=['GET', 'POST', 'DELETE'])
-manager.create_api(RPALogs, methods=['GET', 'POST', 'DELETE'])
+api_preprocs = {
+    "GET_SINGLE":[ check_credentials ],
+    "GET_MANY":[ check_credentials ],
+    "POST": [ check_credentials],
+    # "DELETE_SINGLE": [ check_credentials ],
+    
+}
+
+
+manager.create_api(RoboticProcessAutomation, methods=['GET', 'POST', 'DELETE'], preprocessors=api_preprocs)
+manager.create_api(RPALogs, methods=['GET', 'POST', 'DELETE'], preprocessors=api_preprocs)
